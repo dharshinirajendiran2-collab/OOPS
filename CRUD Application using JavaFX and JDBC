@@ -1,0 +1,144 @@
+CREATE DATABASE college;
+
+USE college;
+
+CREATE TABLE student (
+    id INT PRIMARY KEY,
+    name VARCHAR(50),
+    department VARCHAR(50),
+    mark INT
+);import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+
+import java.sql.*;
+
+public class Main extends Application {
+
+    TextField id = new TextField();
+    TextField name = new TextField();
+    TextField dept = new TextField();
+    TextField mark = new TextField();
+
+    Connection con;
+
+    public void start(Stage stage) {
+
+        id.setPromptText("Student ID");
+        name.setPromptText("Student Name");
+        dept.setPromptText("Department");
+        mark.setPromptText("Mark");
+
+        Button add = new Button("Create");
+        Button read = new Button("Read");
+        Button update = new Button("Update");
+        Button delete = new Button("Delete");
+
+        TextArea output = new TextArea();
+
+        connect();
+
+        add.setOnAction(e -> {
+            try {
+                String sql = "INSERT INTO student VALUES (?, ?, ?, ?)";
+                PreparedStatement ps = con.prepareStatement(sql);
+
+                ps.setInt(1, Integer.parseInt(id.getText()));
+                ps.setString(2, name.getText());
+                ps.setString(3, dept.getText());
+                ps.setInt(4, Integer.parseInt(mark.getText()));
+
+                ps.executeUpdate();
+                output.setText("Record inserted successfully.");
+
+            } catch (Exception ex) {
+                output.setText(ex.getMessage());
+            }
+        });
+
+        read.setOnAction(e -> {
+            try {
+                Statement st = con.createStatement();
+                ResultSet rs = st.executeQuery("SELECT * FROM student");
+
+                output.clear();
+
+                while (rs.next()) {
+                    output.appendText(
+                        "ID: " + rs.getInt("id") +
+                        "  Name: " + rs.getString("name") +
+                        "  Department: " + rs.getString("department") +
+                        "  Mark: " + rs.getInt("mark") + "\n"
+                    );
+                }
+
+            } catch (Exception ex) {
+                output.setText(ex.getMessage());
+            }
+        });
+
+        update.setOnAction(e -> {
+            try {
+                String sql = "UPDATE student SET name=?, department=?, mark=? WHERE id=?";
+                PreparedStatement ps = con.prepareStatement(sql);
+
+                ps.setString(1, name.getText());
+                ps.setString(2, dept.getText());
+                ps.setInt(3, Integer.parseInt(mark.getText()));
+                ps.setInt(4, Integer.parseInt(id.getText()));
+
+                ps.executeUpdate();
+                output.setText("Record updated successfully.");
+
+            } catch (Exception ex) {
+                output.setText(ex.getMessage());
+            }
+        });
+
+        delete.setOnAction(e -> {
+            try {
+                String sql = "DELETE FROM student WHERE id=?";
+                PreparedStatement ps = con.prepareStatement(sql);
+
+                ps.setInt(1, Integer.parseInt(id.getText()));
+
+                ps.executeUpdate();
+                output.setText("Record deleted successfully.");
+
+            } catch (Exception ex) {
+                output.setText(ex.getMessage());
+            }
+        });
+
+        VBox root = new VBox(10);
+        root.getChildren().addAll(
+            id, name, dept, mark,
+            add, read, update, delete,
+            output
+        );
+
+        Scene scene = new Scene(root, 400, 500);
+
+        stage.setTitle("Student CRUD Application");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    void connect() {
+        try {
+            con = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/college",
+                "root",
+                "password"
+            );
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
