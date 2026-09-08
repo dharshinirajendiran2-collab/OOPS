@@ -1,0 +1,25 @@
+public class Main {
+    public static void main(String[] args) {
+
+        // Primitive data types
+        int a = 10;
+        double b = 25.5;
+
+        // Autoboxing
+        Integer obj1 = a;
+        Double obj2 = b;
+
+        System.out.println("Primitive int value    : " + a);
+        System.out.println("Wrapper Integer value  : " + obj1);
+
+        System.out.println("Primitive double value : " + b);
+        System.out.println("Wrapper Double value   : " + obj2);
+
+        // Unboxing
+        int x = obj1;
+        double y = obj2;
+
+        System.out.println("Unboxed int value      : " + x);
+        System.out.println("Unboxed double value   : " + y);
+    }
+}
